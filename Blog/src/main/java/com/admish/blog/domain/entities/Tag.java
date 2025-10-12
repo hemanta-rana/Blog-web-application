@@ -6,11 +6,11 @@ import lombok.*;
 import java.util.*;
 
 @Entity
+@Builder
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
 @Table(name = "tags")
 public class Tag {
 

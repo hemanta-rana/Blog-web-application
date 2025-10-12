@@ -11,9 +11,9 @@ import java.util.Set;
 import java.util.UUID;
 
 @Entity
+@Builder
 @Getter
 @Setter
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "posts")
