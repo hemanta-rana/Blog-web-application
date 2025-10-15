@@ -1,5 +1,7 @@
 package com.admish.blog.config;
 
+import com.admish.blog.security.JwtAuthenticationFilter;
+import com.admish.blog.services.AuthenticationService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -10,12 +12,19 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 public class SecurityConfig {
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception{
+    public JwtAuthenticationFilter jwtAuthenticationFilter(AuthenticationService authenticationService){
+        return new JwtAuthenticationFilter(authenticationService);
+    }
+
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http,
+                                                   JwtAuthenticationFilter jwtAuthenticationFilter) throws Exception{
 
         http.
                 csrf(csrf-> csrf.disable())
@@ -23,7 +32,9 @@ public class SecurityConfig {
                         request.requestMatchers(HttpMethod.GET, "/api/v1/categories/**").permitAll()
 //                                .requestMatchers(HttpMethod.GET,"/api/v1/posts/**").permitAll()
 //                                .requestMatchers(HttpMethod.GET, "/api/v1/tags/**")
-                );
+                                .requestMatchers(HttpMethod.POST, "/api/v1/auth").permitAll()
+                )
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
