@@ -1,7 +1,6 @@
 package com.admish.blog.services.impl;
 
 
-import com.admish.blog.domain.entities.User;
 import com.admish.blog.services.AuthenticationService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -45,7 +44,7 @@ public class AuthenticationServiceImpl  implements AuthenticationService {
     @Override
     public String generateToken(UserDetails userDetails) {
         Map<String, Object> claims = new HashMap<>();
-        Jwts.builder()
+        return  Jwts.builder()
                 .setSubject(userDetails.getUsername())
                 .setClaims(claims)
                 .setExpiration(new Date(System.currentTimeMillis()))
@@ -53,7 +52,7 @@ public class AuthenticationServiceImpl  implements AuthenticationService {
                 .signWith(getSigningKey(), SignatureAlgorithm.HS256)
                 .compact();
 
-        return "";
+
     }
 
     @Override
