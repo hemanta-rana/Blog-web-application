@@ -40,7 +40,8 @@ public class SecurityConfig {
                         request.requestMatchers(HttpMethod.GET, "/api/v1/categories/**").permitAll()
 //                                .requestMatchers(HttpMethod.GET,"/api/v1/posts/**").permitAll()
 //                                .requestMatchers(HttpMethod.GET, "/api/v1/tags/**")
-                                .requestMatchers(HttpMethod.POST, "/api/v1/auth").permitAll()
+                                .requestMatchers(HttpMethod.POST, "/api/v1/auth/login").permitAll()
+                                .requestMatchers(HttpMethod.POST, "/api/v1/auth/signup").permitAll()
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 

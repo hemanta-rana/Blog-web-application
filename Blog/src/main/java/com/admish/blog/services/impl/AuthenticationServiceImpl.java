@@ -1,6 +1,10 @@
 package com.admish.blog.services.impl;
 
 
+import com.admish.blog.domain.entities.User;
+import com.admish.blog.exception.EmailAlreadyInUseException;
+import com.admish.blog.exception.UserAlreadyExistsException;
+import com.admish.blog.repository.UserRepository;
 import com.admish.blog.services.AuthenticationService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -12,6 +16,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 
@@ -26,6 +31,8 @@ public class AuthenticationServiceImpl  implements AuthenticationService {
 
    private final AuthenticationManager authenticationManager;
    private final UserDetailsService userDetailsService;
+   private final UserRepository userRepository;
+   private final PasswordEncoder passwordEncoder;
 
    @Value("${jwt.secret}")
    private  String secretKey;
@@ -51,14 +58,31 @@ public class AuthenticationServiceImpl  implements AuthenticationService {
                 .setIssuedAt(new Date(System.currentTimeMillis()+ jwtExpirationMs))
                 .signWith(getSigningKey(), SignatureAlgorithm.HS256)
                 .compact();
-
-
     }
 
     @Override
     public UserDetails validateUser(String token) {
         String username = extractUsername(token);
        return userDetailsService.loadUserByUsername(username);
+    }
+
+    @Override
+    public UserDetails registerUser(String email, String password, String name) {
+        if (userRepository.findByEmail(email).isPresent()){
+            throw new EmailAlreadyInUseException("email already exists ! ");
+        }
+        if (userRepository.findByName(name).isPresent()){
+            throw new UserAlreadyExistsException("user already exist with name "+name);
+        }
+
+        User user = new User();
+        user.setEmail(email);
+        user.setPassword(passwordEncoder.encode(password));
+        user.setName(name);
+
+       User savedUser=  userRepository.save(user);
+
+       return userDetailsService.loadUserByUsername(savedUser.getEmail());
     }
 
     private String extractUsername(String token){

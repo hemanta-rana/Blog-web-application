@@ -1,6 +1,7 @@
 package com.admish.blog.services;
 
 
+
 import org.springframework.security.core.userdetails.UserDetails;
 
 public interface AuthenticationService {
@@ -8,4 +9,6 @@ public interface AuthenticationService {
     UserDetails authenticate(String email, String password);
     String generateToken(UserDetails userDetails);
     UserDetails validateUser(String token);
+
+    UserDetails registerUser(String email,String password,String name);
 }

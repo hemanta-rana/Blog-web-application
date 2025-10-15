@@ -3,6 +3,8 @@ package com.admish.blog.controllers;
 
 import com.admish.blog.domain.dtos.ApiErrorResponse;
 
+import com.admish.blog.exception.EmailAlreadyInUseException;
+import com.admish.blog.exception.UserAlreadyExistsException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -56,6 +58,26 @@ public class ErrorController {
                 .build();
 
         return new ResponseEntity<>(error, HttpStatus.UNAUTHORIZED);
+    }
+
+    @ExceptionHandler(UserAlreadyExistsException.class)
+    public ResponseEntity<ApiErrorResponse> handleUserAlreadyExistsException(BadCredentialsException ex){
+        ApiErrorResponse error = ApiErrorResponse.builder()
+                .statusCode(HttpStatus.CONFLICT.value())
+                .message("username already exists")
+                .build();
+
+        return new ResponseEntity<>(error, HttpStatus.CONFLICT);
+    }
+
+    @ExceptionHandler(EmailAlreadyInUseException.class)
+    public ResponseEntity<ApiErrorResponse> handleEmailAlreadyInUseException(BadCredentialsException ex){
+        ApiErrorResponse error = ApiErrorResponse.builder()
+                .statusCode(HttpStatus.CONFLICT.value())
+                .message("email is already in use ")
+                .build();
+
+        return new ResponseEntity<>(error, HttpStatus.CONFLICT);
     }
 }
 
