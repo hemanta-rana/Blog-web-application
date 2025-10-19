@@ -61,7 +61,7 @@ public class ErrorController {
     }
 
     @ExceptionHandler(UserAlreadyExistsException.class)
-    public ResponseEntity<ApiErrorResponse> handleUserAlreadyExistsException(BadCredentialsException ex){
+    public ResponseEntity<ApiErrorResponse> handleUserAlreadyExistsException(UserAlreadyExistsException ex){
         ApiErrorResponse error = ApiErrorResponse.builder()
                 .statusCode(HttpStatus.CONFLICT.value())
                 .message("username already exists")
@@ -71,7 +71,7 @@ public class ErrorController {
     }
 
     @ExceptionHandler(EmailAlreadyInUseException.class)
-    public ResponseEntity<ApiErrorResponse> handleEmailAlreadyInUseException(BadCredentialsException ex){
+    public ResponseEntity<ApiErrorResponse> handleEmailAlreadyInUseException(EmailAlreadyInUseException ex){
         ApiErrorResponse error = ApiErrorResponse.builder()
                 .statusCode(HttpStatus.CONFLICT.value())
                 .message("email is already in use ")

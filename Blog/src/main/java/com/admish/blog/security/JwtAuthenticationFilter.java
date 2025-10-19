@@ -15,49 +15,50 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
-
 @RequiredArgsConstructor
 @Slf4j
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
+
     private final AuthenticationService authenticationService;
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-
+    protected void doFilterInternal(HttpServletRequest request,
+                                    HttpServletResponse response,
+                                    FilterChain filterChain) throws ServletException, IOException {
         try {
             String token = extractToken(request);
 
             if (token != null) {
                 UserDetails userDetails = authenticationService.validateUser(token);
 
-                UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
-                        userDetails,
-                        null,
-                        userDetails.getAuthorities()
+                UsernamePasswordAuthenticationToken authToken =
+                        new UsernamePasswordAuthenticationToken(
+                                userDetails,
+                                null,
+                                userDetails.getAuthorities()
+                        );
 
-                );
+                SecurityContextHolder.getContext().setAuthentication(authToken);
 
-                SecurityContextHolder.getContext().setAuthentication(authenticationToken);
-
-                if (userDetails instanceof BlogUserDetails) {
-                    request.setAttribute("userId", ((BlogUserDetails) userDetails).getId());
+                // Optional: set userId for downstream use
+                if (userDetails instanceof BlogUserDetails blogUser) {
+                    request.setAttribute("userId", blogUser.getId());
                 }
             }
-        }catch (Exception ex){
-            // do not throw exception
-            log.error("received invalid auth token ");
+        } catch (Exception ex) {
+            SecurityContextHolder.clearContext(); // important
+            log.error("Invalid JWT token", ex);
         }
-        filterChain.doFilter(request, response);
 
+        filterChain.doFilter(request, response);
     }
 
-    private String extractToken(HttpServletRequest request){
+    private String extractToken(HttpServletRequest request) {
         String bearerToken = request.getHeader("Authorization");
-
-        if (bearerToken!= null && bearerToken.startsWith("Bearer 1")){
+        if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
             return bearerToken.substring(7);
         }
-
         return null;
     }
 }
+
